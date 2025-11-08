@@ -3,14 +3,12 @@
 namespace App\Services\Fact;
 
 use App\Models\Fact;
-use Illuminate\Database\Eloquent\Collection;
 
 class FactService
 {
-
-    public function getAll(): Collection
+    public function getAll()
     {
-        return Fact::all();
+        return Fact::paginate(config('facts.pagination.per_page'));
     }
 
 }

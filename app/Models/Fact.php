@@ -14,4 +14,8 @@ class Fact extends Model
         'source',
         'category',
     ];
+
+    protected $hidden = [
+        'embedding',
+    ];
 }

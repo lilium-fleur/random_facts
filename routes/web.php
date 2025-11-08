@@ -1,9 +1,7 @@
 <?php
 
-use App\Http\Controllers\Fact\FactController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Auth\AuthController;
 
 Route::get('/', function () {
     return "no welcome view";
@@ -22,6 +20,3 @@ Route::post('/password/change', [AuthController::class, 'changePassword'])->name
 
 Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
 Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('updateProfile');
-
-
-Route::get('/facts', [FactController::class, 'index']);

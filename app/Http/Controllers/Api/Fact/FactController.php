@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Fact;
+namespace App\Http\Controllers\Api\Fact;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FactResource;
 use App\Services\Fact\FactService;
-use Illuminate\Contracts\View\View;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FactController extends Controller
 {
@@ -14,9 +15,10 @@ class FactController extends Controller
     {
     }
 
-    public function index(): View  {
+    public function index(): AnonymousResourceCollection
+    {
         $facts = $this->factService->getAll();
 
-        return view('fact.index', compact('facts'));
+        return FactResource::collection($facts);
     }
 }
