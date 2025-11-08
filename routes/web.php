@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return "no welcome view";
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('loginForm');
@@ -20,4 +20,3 @@ Route::post('/password/change', [AuthController::class, 'changePassword'])->name
 
 Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
 Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('updateProfile');
-
