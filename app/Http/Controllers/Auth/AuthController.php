@@ -3,100 +3,78 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\Auth\ChangePasswordRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
+use App\Http\Resources\AuthResource;
+use App\Http\Resources\UserResource;
+use App\Services\Auth\AuthService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-
-    public function showLoginForm(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function __construct(protected AuthService $service)
     {
-        return view('auth.login');
     }
 
-    public function showRegistrationForm(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function register(RegisterRequest $request): AuthResource
     {
-        return view('auth.register');
+        $requestData = $request->validated();
+
+        $responseData = $this->service->register($requestData);
+
+        return new AuthResource($responseData['user'], $responseData['token']);
     }
 
-    public function showChangePasswordForm(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse|AuthResource
     {
-        return view('auth.change-password');
-    }
+        $requestData = $request->validated();
 
-    public function register(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
-
-        User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-
-        return redirect()->route('login')->withErrors('status', 'Registered successfully!');
-    }
-
-    public function login(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $data = $request->validate([
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string',
-        ]);
-
-        if (Auth::attempt($data)) {
-            return redirect()->intended('profile');
+        try {
+            $responseData = $this->service->login($requestData);
+            return new AuthResource($responseData['user'], $responseData['token']);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error while logging in',
+                'errors' => $e->errors(),
+            ], 401);
         }
-
-        return back()->withErrors(['email' => 'The provided credentials do not match our records.']);
     }
 
-    public function logout(Request $request): \Illuminate\Http\RedirectResponse
+    public function logout()
     {
         Auth::logout();
-        return redirect()->intended('login');
     }
 
-    public function profile(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function updateProfile(UpdateProfileRequest $request): UserResource|\Illuminate\Http\JsonResponse
     {
-        $user = Auth::user();
-        return view('auth.profile', compact('user'));
-    }
+        $data = $request->validated();
 
-    public function updateProfile(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $data = $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users,email,' . Auth::id(),
-            'password' => 'string|min:8|confirmed',
-        ]);
-        $user = Auth::user();
-        $user->update($data);
-
-        return redirect()->route('profile')->withErrors('status', 'Profile updated successfully!');
-    }
-
-    public function changePassword(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $data = $request->validate([
-            'current_password' => 'required|string|min:8',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = Auth::user();
-
-        if (!Hash::check($data['current_password'], $user->password)) {
-            return back()->withErrors('current_password', 'Your current password is incorrect!');
+        try {
+            $user = $this->service->updateProfile($data);
+            return new UserResource($user);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error while updating your profile',
+                'errors' => $e->errors(),
+            ]);
         }
-        $user->password = Hash::make($data['new_password']);
-        $user->save();
+    }
 
-        return redirect()->route('profile')->withErrors('status', 'Password updated successfully!');
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $data = $request->validated();
+
+        try {
+            $user = $this->service->changePassword($data);
+            return new UserResource($user);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error while updating your password',
+                'errors' => $e->errors(),
+            ]);
+        }
     }
 }
