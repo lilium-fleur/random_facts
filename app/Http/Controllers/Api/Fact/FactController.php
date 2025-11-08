@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Fact;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FactResource;
 use App\Services\Fact\FactService;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FactController extends Controller
 {
@@ -15,10 +14,14 @@ class FactController extends Controller
     {
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(): \Illuminate\Http\JsonResponse
     {
         $facts = $this->factService->getAll();
 
-        return FactResource::collection($facts);
+//        return FactResource::collection($facts);
+        return response()->json([
+            'success' => true,
+            'result' => FactResource::collection($facts)->response()->getData(true)
+        ]);
     }
 }
