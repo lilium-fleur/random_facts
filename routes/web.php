@@ -1,7 +1,6 @@
 <?php
 
+use App\Services\FactGenerationService;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [FactGenerationService::class, 'generateFacts']);

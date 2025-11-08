@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rf-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rf
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - postgres-net
+
+  ollama:
+    image: ollama/ollama
+    container_name: rf-ollama
+    ports:
+      - "11434:11434"
+    command: serve
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - ollama-net
+
+volumes:
+  postgres_data:
+  ollama:
+
+networks:
+  postgres-net:
+    driver: bridge
+  ollama-net:
+    driver: bridge
