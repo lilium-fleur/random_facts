@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Fact;
 
 use App\Models\Fact;
 use App\Services\Prompt\PromptToAiService;
-use App\Services\Prompt\PromptToLocalAiService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpClient\HttpClient;

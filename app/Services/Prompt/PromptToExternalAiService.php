@@ -18,7 +18,7 @@ class PromptToExternalAiService implements PromptToAiService
                 ],
 
                 'json' => [
-                    'model' => 'llama-3.3-70b-versatile',
+                    'model' => 'openai/gpt-oss-120b',
                     'input' => 'ou are a JSON fact generator. Your only job is to output valid JSON.
 
                     Generate EXACTLY 30 random interesting facts.

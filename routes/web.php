@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\FactGenerationService;
+use App\Http\Controllers\Fact\FactController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [FactGenerationService::class, 'generateFacts']);
+Route::get('/facts', [FactController::class, 'index']);

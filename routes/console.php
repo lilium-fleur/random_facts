@@ -9,5 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::call(function () {
-    app(\App\Services\FactGenerationService::class)->generateFacts();
+    app(\App\Services\Fact\FactGenerationService::class)->generateFacts();
 })->everyMinute();
