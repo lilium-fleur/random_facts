@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Fact\FactCommentController;
 use App\Http\Controllers\Api\Fact\FactController;
+use App\Http\Controllers\Api\Fact\FactLikeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,7 @@ Route::get('/facts/{factId}/comments', [FactCommentController::class, 'index']);
 Route::post('/facts/{factId}/comments', [FactCommentController::class, 'store']);
 Route::put('/facts/{fact}/comments/{comment}', [FactCommentController::class, 'update']);
 Route::delete('/facts/{fact}/comments/{comment}', [FactCommentController::class, 'destroy']);
+
+Route::post('/facts/{factId}/likes', [FactLikeController::class, 'store']);
+Route::delete('/facts/{factId}/likes/{likeId}', [FactLikeController::class, 'destroy']);
 

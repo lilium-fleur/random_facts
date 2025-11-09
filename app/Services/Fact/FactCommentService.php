@@ -5,6 +5,7 @@ namespace App\Services\Fact;
 use App\Exceptions\NotFoundException;
 use App\Models\Fact;
 use App\Models\FactComment;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class FactCommentService
 {
@@ -14,6 +15,21 @@ class FactCommentService
     ];
 
     /**
+     * @param int $factId
+     * @return LengthAwarePaginator
+     */
+    public function getAll(int $factId): LengthAwarePaginator
+    {
+        return FactComment::where('fact_id', $factId)
+            ->latest()
+            ->paginate(config('fact_comments.pagination.per_page'));
+    }
+
+
+    /**
+     * @param array $data
+     * @param int $factId
+     * @return FactComment
      * @throws NotFoundException
      */
     public function createComment(array $data, int $factId): FactComment
@@ -31,6 +47,13 @@ class FactCommentService
         ]);
     }
 
+    /**
+     * @param array $data
+     * @param int $factId
+     * @param int $commentId
+     * @return FactComment
+     * @throws NotFoundException
+     */
     public function updateComment(array $data, int $factId, int $commentId): FactComment
     {
         $factComment = FactComment::find($commentId);
@@ -43,6 +66,12 @@ class FactCommentService
         return $factComment;
     }
 
+    /**
+     * @param int $factId
+     * @param int $commentId
+     * @return bool
+     * @throws NotFoundException
+     */
     public function deleteComment(int $factId, int $commentId): bool
     {
         $factComment = FactComment::find($commentId);
