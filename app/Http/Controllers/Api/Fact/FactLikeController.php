@@ -7,9 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FactLikeResource;
 use App\Services\Common\ResponseService;
 use App\Services\Fact\FactLikeService;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Throwable;
 
 class FactLikeController extends Controller
 {
@@ -37,20 +35,15 @@ class FactLikeController extends Controller
 
     /**
      * @param int $factId
-     * @param int $likeId
      * @return JsonResponse
      */
-    public function destroy(int $factId, int $likeId): JsonResponse
+    public function destroy(int $factId): JsonResponse
     {
         try {
-            $this->factLikeService->unlike($factId, $likeId);
+            $this->factLikeService->unlike($factId);
             return ResponseService::success();
         } catch (NotFoundException $e) {
             return ResponseService::notFound($e->getMessage());
-        } catch (AuthorizationException $e) {
-            return ResponseService::unauthorized($e->getMessage());
-        } catch (Throwable $e) {
-            return ResponseService::fromException($e);
         }
     }
 }

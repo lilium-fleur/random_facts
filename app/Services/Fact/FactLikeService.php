@@ -13,7 +13,6 @@ class FactLikeService
     private const ERROR_MESSAGES = [
         'factNotFound' => 'Fact not found',
         'factLikeNotFound' => 'Fact\'s like not found',
-        'authPermissions' => 'You cannot modify this data'
     ];
 
     public function like(int $factId): FactLike
@@ -25,25 +24,23 @@ class FactLikeService
 //        $userId = Auth::id();
         $userId = 1;
 
+        $likeAlreadyExists = FactLike::where('fact_id', $factId)->where('user_id', $userId)->first();
+
+        if ($likeAlreadyExists !== null) return $likeAlreadyExists;
+
         return FactLike::create([
             'fact_id' => $factId,
             'user_id' => $userId,
         ]);
     }
 
-    public function unlike(int $factId, int $likeId): void
+    public function unlike(int $factId): void
     {
-        $fact = Fact::find($factId);
-
-        if (!$fact) throw new NotFoundException(self::ERROR_MESSAGES['factNotFound']);
-
-        $factLike = FactLike::find($likeId);
-        if (!$factLike) throw new NotFoundException(self::ERROR_MESSAGES['factLikeNotFound']);
-
 //        $userId = Auth::id();
         $userId = 1;
-        if ($factLike->user_id !== $userId) throw new AuthorizationException(self::ERROR_MESSAGES['authPermissions']);
-        if ($factLike->fact_id !== $fact->id) throw new RuntimeException();
+
+        $factLike = FactLike::where('fact_id', $factId)->where('user_id', $userId)->first();
+        if (!$factLike) throw new NotFoundException(self::ERROR_MESSAGES['factLikeNotFound']);
 
         $factLike->delete();
     }
