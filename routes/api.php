@@ -15,7 +15,15 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/password/change', [AuthController::class, 'changePassword']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+        ->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', [AuthController::class, 'sendEmailVerificationNotification'])
+        ->middleware('auth', 'throttle:6,1')->name('verification.send');
 });
+
 Route::get('/facts', [FactController::class, 'index']);
 
 Route::get('/facts/{factId}/comments', [FactCommentController::class, 'index']);

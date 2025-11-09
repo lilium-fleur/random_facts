@@ -3,6 +3,8 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -14,7 +16,9 @@ class AuthService
 
         $user = User::create($data);
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        $token = $user->createToken('token')->plainTextToken;
+
+        $user->sendEmailVerificationNotification();
 
         return [
             'user' => $user,
@@ -80,5 +84,44 @@ class AuthService
         $user->password = Hash::make($data['new_password']);
         $user->save();
         return $user;
+    }
+
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function verifyEmail($id, $hash): string
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            throw new ModelNotFoundException('User not found.');
+        }
+
+        if (!hash_equals((string)$hash, sha1($user->getEmailForVerification()))) {
+            throw new AuthorizationException('Verification link is invalid.');
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return 'Email verified successfully!';
+    }
+
+    public function resendVerificationEmail($id): string
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            throw new ModelNotFoundException('User not found.');
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return 'Email verified already.';
+        }
+
+        $user->sendEmailVerificationNotification();
+        return 'Email verification link sent on your inbox.';
     }
 }

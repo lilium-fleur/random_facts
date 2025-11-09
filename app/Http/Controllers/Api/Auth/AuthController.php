@@ -10,6 +10,9 @@ use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Resources\AuthResource;
 use App\Http\Resources\UserResource;
 use App\Services\Auth\AuthService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -74,6 +77,38 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Error while updating your password',
                 'errors' => $e->errors(),
+            ]);
+        }
+    }
+
+    public function verifyEmail($id, $hash): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $message = $this->service->verifyEmail($id, $hash);
+            return response()->json([
+                'message' => $message,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 404);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 403);
+        }
+    }
+
+    public function resendVerificationEmail($id, Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $message = $this->service->resendVerificationEmail($id);
+            return response()->json([
+                'message' => $message,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ]);
         }
     }
