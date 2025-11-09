@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Fact\FactComment\FactCommentStoreRequest;
 use App\Http\Requests\Fact\FactComment\FactCommentUpdateRequest;
 use App\Http\Resources\FactCommentResource;
-use App\Models\FactComment;
+use App\Services\Common\ResponseService;
 use App\Services\Fact\FactCommentService;
 use Illuminate\Http\JsonResponse;
 
@@ -19,16 +19,22 @@ class FactCommentController extends Controller
     {
     }
 
+
     /**
-     * Display a listing of the resource.
+     * @param int $factId
+     * @return JsonResponse
      */
-    public function index()
+    public function index(int $factId): JsonResponse
     {
-        return 111;
+        $comments = $this->factCommentService->getAll($factId);
+
+        return ResponseService::success(FactCommentResource::collection($comments)->response()->getData());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @param FactCommentStoreRequest $request
+     * @param int $factId
+     * @return JsonResponse
      */
     public function store(FactCommentStoreRequest $request, int $factId): JsonResponse
     {
@@ -37,63 +43,44 @@ class FactCommentController extends Controller
         try {
             $factComment = $this->factCommentService->createComment($data, $factId);
 
-            return response()->json([
-                'success' => true,
-                'result' => FactCommentResource::make($factComment),
-            ]);
+            return ResponseService::success(FactCommentResource::make($factComment));
         } catch (NotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            return ResponseService::notFound($e->getMessage());
         }
     }
 
     /**
-     * Display the specified resource.
+     * @param FactCommentUpdateRequest $request
+     * @param int $factId
+     * @param int $commentId
+     * @return JsonResponse
      */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(FactCommentUpdateRequest $request, int $factId, int $commentId)
+    public function update(FactCommentUpdateRequest $request, int $factId, int $commentId): JsonResponse
     {
         $data = $request->validated();
 
         try {
             $factComment = $this->factCommentService->updateComment($data, $factId, $commentId);
-            return response()->json([
-                'success' => true,
-                'result' => FactCommentResource::make($factComment),
-            ]);
+
+            return ResponseService::success(FactCommentResource::make($factComment));
         } catch (NotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            return ResponseService::notFound($e->getMessage());
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @param int $factId
+     * @param int $commentId
+     * @return JsonResponse
      */
     public function destroy(int $factId, int $commentId): JsonResponse
     {
         try {
             $isDeleted = $this->factCommentService->deleteComment($factId, $commentId);
 
-            return response()->json([
-                'success' => $isDeleted,
-            ]);
+            return $isDeleted ? ResponseService::success() : ResponseService::unSuccess();
         } catch (NotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            return ResponseService::notFound($e->getMessage());
         }
 
     }
