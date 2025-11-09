@@ -32,5 +32,5 @@ Route::put('/facts/{fact}/comments/{comment}', [FactCommentController::class, 'u
 Route::delete('/facts/{fact}/comments/{comment}', [FactCommentController::class, 'destroy']);
 
 Route::post('/facts/{factId}/likes', [FactLikeController::class, 'store']);
-Route::delete('/facts/{factId}/likes/{likeId}', [FactLikeController::class, 'destroy']);
+Route::delete('/facts/{factId}/likes', [FactLikeController::class, 'destroy']);
 
